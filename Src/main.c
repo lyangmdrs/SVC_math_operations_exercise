@@ -24,9 +24,53 @@
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
 #endif
 
+int32_t add_numbers(int32_t a, int32_t b);
+int32_t sub_numbers(int32_t a, int32_t b);
+int32_t mul_numbers(int32_t a, int32_t b);
+int32_t div_numbers(int32_t a, int32_t b);
+
 int main(void)
 {
     printf("-= SVC Calculator =-\n");
-	/* Loop forever */
+
+    add_numbers(1,2);
+
+    /* Loop forever */
 	for(;;);
+}
+
+int32_t add_numbers(int32_t a, int32_t b)
+{
+	printf("\t - On Method %s!\n", __FUNCTION__);
+
+	int res;
+	//TODO: Implement SVC instruction to do calculations.
+	return res;
+}
+
+int32_t sub_numbers(int32_t a, int32_t b)
+{
+	printf("\t - On Method %s!\n", __FUNCTION__);
+
+	int res;
+	//TODO: Implement SVC instruction to do calculations.
+	return res;
+}
+
+int32_t mul_numbers(int32_t a, int32_t b)
+{
+	printf("\t - On Method %s!\n", __FUNCTION__);
+
+	int res;
+	//TODO: Implement SVC instruction to do calculations.
+	return res;
+}
+
+int32_t div_numbers(int32_t a, int32_t b)
+{
+	printf("\t - On Method %s!\n", __FUNCTION__);
+
+	int res;
+	//TODO: Implement SVC instruction to do calculations.
+	return res;
 }
