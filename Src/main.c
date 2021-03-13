@@ -17,6 +17,15 @@
  ******************************************************************************
  */
 
+/*
+ * SVC code of operations:
+ * 		-> 30: Addition
+ * 		-> 31: Subtraction
+ * 		-> 32: Multiplication
+ * 		-> 33: Division
+ */
+
+
 #include <stdint.h>
 #include <stdio.h>
 
@@ -24,6 +33,7 @@
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
 #endif
 
+void SVC_Handle_c(uint32_t *pBaseStackFrame);
 int32_t add_numbers(int32_t a, int32_t b);
 int32_t sub_numbers(int32_t a, int32_t b);
 int32_t mul_numbers(int32_t a, int32_t b);
@@ -33,18 +43,36 @@ int main(void)
 {
     printf("-= SVC Calculator =-\n");
 
-    add_numbers(1,2);
+    add_numbers(1, 2);
+    sub_numbers(6, 3);
+    mul_numbers(3, 1);
+    div_numbers(9, 3);
 
     /* Loop forever */
 	for(;;);
+}
+
+__attribute__( ( naked ) ) void SVC_Handler( void )
+{
+    __asm ("MRS r0,MSP");
+    __asm( "B SVC_Handler_c");
+}
+
+void SVC_Handler_c(uint32_t *pBaseOfStackFrame)
+{
+	printf("\t - On Method %s!\n", __FUNCTION__);
+
 }
 
 int32_t add_numbers(int32_t a, int32_t b)
 {
 	printf("\t - On Method %s!\n", __FUNCTION__);
 
-	int res;
-	//TODO: Implement SVC instruction to do calculations.
+	int32_t res = 0;
+
+	__asm volatile("SVC #30"); // Calls a SVC instruction with the addition code
+	__asm volatile("MOV %0, R0" : "=r"(res) ::); // Retrieves the result from R0 register
+
 	return res;
 }
 
@@ -52,8 +80,11 @@ int32_t sub_numbers(int32_t a, int32_t b)
 {
 	printf("\t - On Method %s!\n", __FUNCTION__);
 
-	int res;
-	//TODO: Implement SVC instruction to do calculations.
+	int32_t res = 0;
+
+	__asm volatile("SVC #31"); // Calls a SVC instruction with the subtraction code
+	__asm volatile("MOV %0, R0" : "=r"(res) ::); // Retrieves the result from R0 register
+
 	return res;
 }
 
@@ -61,8 +92,11 @@ int32_t mul_numbers(int32_t a, int32_t b)
 {
 	printf("\t - On Method %s!\n", __FUNCTION__);
 
-	int res;
-	//TODO: Implement SVC instruction to do calculations.
+	int32_t res = 0;
+
+	__asm volatile("SVC #32"); // Calls a SVC instruction with the multiplication code
+	__asm volatile("MOV %0, R0" : "=r"(res) ::); // Retrieves the result from R0 register
+
 	return res;
 }
 
@@ -70,7 +104,10 @@ int32_t div_numbers(int32_t a, int32_t b)
 {
 	printf("\t - On Method %s!\n", __FUNCTION__);
 
-	int res;
-	//TODO: Implement SVC instruction to do calculations.
+	int32_t res = 0;
+
+	__asm volatile("SVC #33"); // Calls a SVC instruction with the division code
+	__asm volatile("MOV %0, R0" : "=r"(res) ::); // Retrieves the result from R0 register
+
 	return res;
 }
