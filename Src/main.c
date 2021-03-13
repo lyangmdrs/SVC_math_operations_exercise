@@ -17,6 +17,15 @@
  ******************************************************************************
  */
 
+/*
+ * SVC code of operations:
+ * 		-> 30: Addition
+ * 		-> 31: Subtraction
+ * 		-> 32: Multiplication
+ * 		-> 33: Division
+ */
+
+
 #include <stdint.h>
 #include <stdio.h>
 
@@ -24,9 +33,118 @@
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
 #endif
 
+void SVC_Handle_c(uint32_t *pBaseStackFrame);
+int32_t add_numbers(int32_t a, int32_t b);
+int32_t sub_numbers(int32_t a, int32_t b);
+int32_t mul_numbers(int32_t a, int32_t b);
+int32_t div_numbers(int32_t a, int32_t b);
+
 int main(void)
 {
     printf("-= SVC Calculator =-\n");
-	/* Loop forever */
+
+    int32_t res;
+
+    res = add_numbers(54, 1);
+    printf("Result of addition: %ld\n", res);
+
+    res = sub_numbers(16, 4);
+    printf("Result of subtraction: %ld\n", res);
+
+    res = mul_numbers(7, 8);
+    printf("Result of multiplication: %ld\n", res);
+
+    res = div_numbers(9, 3);
+    printf("Result of division: %ld\n", res);
+
+    /* Loop forever */
 	for(;;);
+}
+
+__attribute__( ( naked ) ) void SVC_Handler( void )
+{
+    __asm ("MRS R0,MSP");
+    __asm( "B SVC_Handler_c");
+}
+
+void SVC_Handler_c(uint32_t *pBaseOfStackFrame)
+{
+	printf("\t\t - On Method %s!\n", __FUNCTION__);
+
+	int32_t operand1 = pBaseOfStackFrame[0]; // The 1st operand comes thru R0
+	int32_t operand2 = pBaseOfStackFrame[1]; // The 2nd operand comes thru R1
+	uint8_t *pReturn_addr = (uint8_t*)pBaseOfStackFrame[6]; // Points pReturn_addr to PC
+
+	pReturn_addr-=2; // Points to OPcode of the SVC instruction
+
+	uint8_t svc_number = *pReturn_addr;
+    int32_t result;
+
+    switch(svc_number)
+    {
+    case 30:
+    	result = operand1 + operand2;
+    	break;
+    case 31:
+    	result = operand1 - operand2;
+    	break;
+    case 32:
+    	result = operand1 * operand2;
+    	break;
+    case 33:
+    	result = operand1 / operand2;
+    	break;
+    default:
+    	printf("\t\t - Invalid SVC instruction!\n");
+    }
+
+    pBaseOfStackFrame[0] = result; // Return the result thru R0;
+}
+
+int32_t add_numbers(int32_t a, int32_t b)
+{
+	//printf("\t - On Method %s!\n", __FUNCTION__); // This prinft call was corrupting the values of registers
+													// I'll let this comment to remember this.
+	int32_t res;
+
+	__asm volatile("SVC #30"); // Calls a SVC instruction with the addition code
+	__asm volatile("MOV %0, R0" : "=r"(res) ::); // Retrieves the result from R0 register
+
+	return res;
+}
+
+int32_t sub_numbers(int32_t a, int32_t b)
+{
+	//printf("\t - On Method %s!\n", __FUNCTION__);
+
+	int32_t res = 0;
+
+	__asm volatile("SVC #31"); // Calls a SVC instruction with the subtraction code
+	__asm volatile("MOV %0, R0" : "=r"(res) ::); // Retrieves the result from R0 register
+
+	return res;
+}
+
+int32_t mul_numbers(int32_t a, int32_t b)
+{
+	//printf("\t - On Method %s!\n", __FUNCTION__);
+
+	int32_t res = 0;
+
+	__asm volatile("SVC #32"); // Calls a SVC instruction with the multiplication code
+	__asm volatile("MOV %0, R0" : "=r"(res) ::); // Retrieves the result from R0 register
+
+	return res;
+}
+
+int32_t div_numbers(int32_t a, int32_t b)
+{
+	//printf("\t - On Method %s!\n", __FUNCTION__);
+
+	int32_t res = 0;
+
+	__asm volatile("SVC #33"); // Calls a SVC instruction with the division code
+	__asm volatile("MOV %0, R0" : "=r"(res) ::); // Retrieves the result from R0 register
+
+	return res;
 }
